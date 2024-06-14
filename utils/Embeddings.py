@@ -5,7 +5,7 @@ from langchain_core.embeddings import Embeddings
 
 class EmbeddingModel(Embeddings):
     def __init__(self):
-        self.url = 'http://10.100.1.54:15000/embedding'
+        self.url = 'http://10.100.1.54:15001/embedding'
         self._dimension = 1792
         
     def embed_query(self, texts: str) -> list[float]:

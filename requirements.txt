@@ -1,0 +1,7 @@
+numpy
+pandas
+requests
+langchain
+langchain-core
+langchain-openai
+langchain-community
