@@ -21,11 +21,11 @@ class LLM:
 
 # Retrieve some reference prompt that is great for being the input of stable diffusion model
 class RetrievalWithPrompt:
-    def __init__(self):
+    def __init__(self, mode=1):
         self.llm = Ollama(
             model="llama3"
         )
-        self.embeddings = EmbeddingModel()
+        self.embeddings = EmbeddingModel(mode)
         self.db = FAISS.load_local("./utils/prompt_index", self.embeddings, allow_dangerous_deserialization=True)
         self.retriever = self.db.as_retriever()
         
@@ -104,5 +104,6 @@ Your answer should be a JSON with a single key 'result' and a list of six differ
 {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
                 input_variables=["query"],
 )
-        
+
+
         
