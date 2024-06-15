@@ -11,8 +11,15 @@ df = pd.read_csv('./data/diffusion_prompts.csv')
 
 df = df.drop_duplicates(subset='prompt', keep='first')
 
+print(df.shape)
+
 documents = []
+i = 0
 for index, row in df.iterrows():
+    if len(row['prompt']) < 15:
+        continue
+    if i >= 50000:
+        break
     page_content = row['prompt']
     metadata = {
         'url': row['url'],
@@ -23,9 +30,11 @@ for index, row in df.iterrows():
         page_content=page_content,
         metadata=metadata
     )
+    i += 1
     
     documents.append(document)
 
+print("Number of documents: ", len(documents))
 
 embeddings = EmbeddingModel()
 db = FAISS.from_documents(documents, embeddings)
