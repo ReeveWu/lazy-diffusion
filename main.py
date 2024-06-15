@@ -6,15 +6,24 @@ from linebot.models import (
     QuickReply, QuickReplyButton,
     ButtonsTemplate, MessageAction, URITemplateAction, URIAction, CarouselTemplate, CarouselColumn
 )
+from dotenv import load_dotenv
+import os
 
 from linebot.models import MessageAction, TemplateSendMessage, ConfirmTemplate
 
 from collections import defaultdict
 
-from utils.llm import GenerateDescriptions, GenerateStyle
+from utils.llm import GenerateDescriptions, GenerateStyle, RetrievalWithPrompt
 
+retriever = RetrievalWithPrompt(mode=1)
 description_advisor = GenerateDescriptions()
 style_advisor = GenerateStyle()
+
+
+load_dotenv()
+
+CHANNEL_ACCESS_TOKEN = os.getenv('CHANNEL_ACCESS_TOKEN')
+CHANNEL_SECRET = os.getenv('CHANNEL_SECRET')
 
 def init_info():
     return {
@@ -39,8 +48,8 @@ history = defaultdict(init_info)
 
 app = Flask(__name__)
 
-line_bot_api = LineBotApi('rOwn/aIEJsjwVFNOJXDtrx4KXeDOMs7q/11UFE3ZGSGhJYoUnpt8wu3KonmC9BjYbJi3uWZry6TqLTLzVePFS+hMMHvI1y/QAAe8ADW51jffVj/Jvt8pJmZL4KIh1TrbONpXRhNRQet6LYBi/AqtPAdB04t89/1O/w1cDnyilFU=')
-handler = WebhookHandler('9809abfa9241575a2b2eff4a9a3f6b26')
+line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(CHANNEL_SECRET)
 
 
 @app.route("/callback", methods=['POST'])
@@ -101,8 +110,19 @@ def handle_message(event):
         if user_message == "Not now!":
             messages = [
                 TextMessage(text="Okay, let me know when you're ready!"),
+                TemplateSendMessage(
+                    alt_text='Suggestions',
+                    template=CarouselTemplate(columns=[
+                                CarouselColumn(
+                                    text=doc['page_content'],
+                                    actions=[
+                                        URIAction(label='I want this!', uri=doc['metadata']['url'])
+                                    ]
+                                ) for doc in docs
+                            ])
+                )
             ]
-            history[user_id]["state"] = None
+            history[user_id]["state"] = 2
             line_bot_api.reply_message(event.reply_token, messages)
         else:
             history[user_id]['base_prompt'] = user_message
@@ -130,6 +150,8 @@ def handle_message(event):
             
     elif user_state == 1:
         if user_message == "Yes":
+            docs = retriever.invoke(history[user_id]['base_prompt'])
+            print("docs", docs)
             messages = [
                 TextMessage(text="Here are some prompts that might be helpful for you: "),
             ]
