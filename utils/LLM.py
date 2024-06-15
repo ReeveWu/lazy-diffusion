@@ -71,25 +71,23 @@ class GenerateDescriptions(LLM):
     @staticmethod
     def get_prompt():
         return PromptTemplate(
-            #                 template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-            # Your job involves taking brief descriptions provided by users and expanding them into three more complete and detailed scene descriptions, based on the users' inputs, to enhance the effectiveness of image generation.
-            # Please add details and elements to make the scenes more vivid and specific based on this description.
-            # Each description must within 7 words. \
-            # Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
-            # <|eot_id|><|start_header_id|>user<|end_header_id|>\
-            # {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
-            template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-    You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
-    Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
-    Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.
+                            template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+Your job involves taking brief descriptions provided by users and expanding them into three more complete and detailed scene descriptions, based on the users' inputs, to enhance the effectiveness of image generation.
+Please add details and elements to make the scenes more vivid and specific based on this description.
+Each description must within 7 words. \
+Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
+<|eot_id|><|start_header_id|>user<|end_header_id|>\
+{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+#         template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+# You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
+# Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
+# Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.
 
-    Your response should be formatted as a JSON object containing a single key 'result'. \
-    This key should map to a list of three enhanced scene descriptions, \
-    each thoughtfully expanded to include additional elements that make the scenes more engaging and picturesque. \
-    Ensure that each description is concise yet rich in detail, aiming for a balance between creativity and clarity.
-
-    <|eot_id|><|start_header_id|>user<|end_header_id|>\
-    {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+# Your response should be formatted as a JSON object containing a single key 'result'. \
+# This key should map to a list of three enhanced scene descriptions, \
+# Please double check that you're following the right format and structure. \
+# <|eot_id|><|start_header_id|>user<|end_header_id|>\
+# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
             input_variables=["query"],
     )
 
