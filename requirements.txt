@@ -7,3 +7,5 @@ langchain-openai
 langchain-community
 faiss-cpu
 sentence-transformers
+line-bot-sdk
+Flask
