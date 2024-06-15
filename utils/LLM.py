@@ -59,7 +59,6 @@ Output the answer as a JSON with a single key 'result' and no preamble or explan
         )
 
 
-# TODO: Refine the prompt
 # The model is used to generate three more complete and detailed scene descriptions based on the user's brief description
 class GenerateDescriptions(LLM):
     def __init__(self):
@@ -82,11 +81,10 @@ class GenerateDescriptions(LLM):
     You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
     Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
     Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.
+    Each description must within 10 words. \
 
-    Your response should be formatted as a JSON object containing a single key 'result'. \
-    This key should map to a list of three enhanced scene descriptions, \
-    each thoughtfully expanded to include additional elements that make the scenes more engaging and picturesque. \
-    Ensure that each description is concise yet rich in detail, aiming for a balance between creativity and clarity.
+    Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
+    Please double check that you're following the right format and structure and the response is NOT empty. \
 
     <|eot_id|><|start_header_id|>user<|end_header_id|>\
     {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
@@ -94,7 +92,6 @@ class GenerateDescriptions(LLM):
     )
 
 
-# TODO: Refine the prompt
 # The model is used to generate six different styles based on the user's sentence
 class GenerateStyle(LLM):
     def __init__(self):
@@ -116,3 +113,25 @@ Your answer should be a JSON with a single key 'result' and a list of six differ
 {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
             input_variables=["query"],
         )
+
+# create a comprehensive final prompt using previous results
+# class ultimate_refiner(LLM):
+#     def __init__(self):
+#         super().__init__(self.get_prompt())
+
+#     def invoke(self, base_prompt, style, description):
+#         return super().invoke(query)
+
+#     @staticmethod
+#     def get_prompt():
+#         return PromptTemplate(
+#             template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+# You are an artist whose job is to provide six different styles based on user sentences, \
+# capturing the context of the sentences to allow users to choose their preferred style. \
+# Your styles should be as diverse as possible, each represented by a single keyword.
+
+# Your answer should be a JSON with a single key 'result' and a list of six different styles without any description. and no preamble or explanation. \
+# <|eot_id|><|start_header_id|>user<|end_header_id|>\
+# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+#             input_variables=["query"],
+#         )
