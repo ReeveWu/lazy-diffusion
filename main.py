@@ -13,7 +13,7 @@ from linebot.models import MessageAction, TemplateSendMessage, ConfirmTemplate
 
 from collections import defaultdict
 
-from utils.llm import GenerateDescriptions, GenerateStyle, RetrievalWithPrompt
+from utils.LLM import GenerateDescriptions, GenerateStyle, RetrievalWithPrompt
 
 retriever = RetrievalWithPrompt(mode=1)
 description_advisor = GenerateDescriptions()
@@ -109,18 +109,7 @@ def handle_message(event):
     elif user_state == 0:
         if user_message == "Not now!":
             messages = [
-                TextMessage(text="Okay, let me know when you're ready!"),
-                TemplateSendMessage(
-                    alt_text='Suggestions',
-                    template=CarouselTemplate(columns=[
-                                CarouselColumn(
-                                    text=doc['page_content'],
-                                    actions=[
-                                        URIAction(label='I want this!', uri=doc['metadata']['url'])
-                                    ]
-                                ) for doc in docs
-                            ])
-                )
+                TextMessage(text="Okay, let me know when you're ready!")
             ]
             history[user_id]["state"] = 2
             line_bot_api.reply_message(event.reply_token, messages)
@@ -154,6 +143,17 @@ def handle_message(event):
             print("docs", docs)
             messages = [
                 TextMessage(text="Here are some prompts that might be helpful for you: "),
+                TemplateSendMessage(
+                    alt_text='Suggestions',
+                    template=CarouselTemplate(columns=[
+                                CarouselColumn(
+                                    text=doc.page_content,
+                                    actions=[
+                                        URIAction(label='I want this!', uri=doc.metadata['url'])
+                                    ]
+                                ) for doc in docs
+                            ])
+                )
             ]
             history[user_id]["state"] = 2
             line_bot_api.reply_message(event.reply_token, messages)
