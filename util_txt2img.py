@@ -40,7 +40,8 @@ demo_negative_prompt = "deform, ugly"
 def txt2img(prompt=demo_prompt, negative_prompt=demo_negative_prompt, styles = [], steps=6, width=1024, height=1024, to_show=False):
     start_time = time.time()
     # 更換模型
-    change_model("Stable Diffusion XL Base 1.0.safetensors [31e35c80fc]")
+    change_model("sd_xl_base_1.0.safetensors")
+    change_model("sd_xl_base_1.0.safetensors[31e35c80fc]")
     get_current_model()
     
     # 定義 API URL
