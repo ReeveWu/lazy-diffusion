@@ -124,17 +124,6 @@ class StyleCommandDistinguisher(LLM):
     @staticmethod
     def get_prompt():
         return PromptTemplate(
-#             template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-# You are a specialized assistant designed to interpret user inputs regarding image processing tasks. \
-# Your task is to accurately determine whether the user's input is a request to add a style to an image, preview a style on an image, or generate the final styled image. \
-# Based on the user's command, you should categorize the input into one of these three specific actions.
-
-
-# Your response should be formatted as a JSON object with a two key 'mode' and 'style'. \
-# The value of 'mode' should accurately reflect the user's intent based on their input and follow the specified format: "add", "preview", or "final". \
-# The value of 'style' should be the name of the style if the user's input is a request to add a style or preview a style, if the user choose final, the value should be "" \
-# <|eot_id|><|start_header_id|>user<|end_header_id|>\
-# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
             template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
 You are a specialized assistant tasked with interpreting user inputs related to image styling tasks. \
 Determine if the input is a request to add a style to an image, preview a style, or generate the final styled image. \
