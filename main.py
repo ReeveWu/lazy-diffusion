@@ -364,9 +364,8 @@ def handle_message(event):
         elif user_message == "Next time":
             messages = [
                 TextMessage(text="Okay!"),
-                TextMessage(text="If you have any other requests, feel free to start a new round!"),
                 TextSendMessage(
-                    text='If you think you have selected enough styles, you can ask me to generate the image.',
+                    text="If you have any other requests, feel free to start a new round!",
                     quick_reply=QuickReply(
                         items=[
                             QuickReplyButton(

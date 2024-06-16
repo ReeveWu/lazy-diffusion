@@ -48,7 +48,8 @@ def txt2img(prompt=demo_prompt, negative_prompt=demo_negative_prompt, styles = [
     change_model("sd_xl_base_1.0.safetensors")
     change_model("sd_xl_base_1.0.safetensors[31e35c80fc]")
     change_model("sd_xl_base_1.0.safetensors [31e35c80fc]")
-    get_current_model()
+    if not prompt.endswith(" <lora:lcm_lora_sdxl:1>"):
+        prompt += " <lora:lcm_lora_sdxl:1>"
     
     # 定義 API URL
     url = STABLE_DIFFUSION_API
