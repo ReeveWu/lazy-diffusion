@@ -70,24 +70,17 @@ class GenerateDescriptions(LLM):
     @staticmethod
     def get_prompt():
         return PromptTemplate(
-            #                 template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-            # Your job involves taking brief descriptions provided by users and expanding them into three more complete and detailed scene descriptions, based on the users' inputs, to enhance the effectiveness of image generation.
-            # Please add details and elements to make the scenes more vivid and specific based on this description.
-            # Each description must within 7 words. \
-            # Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
-            # <|eot_id|><|start_header_id|>user<|end_header_id|>\
-            # {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
-            template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-    You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
-    Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
-    Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.
-    Each description must within 10 words. \
+                template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
+Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
+Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.
+Each description must within 10 words. \
 
-    Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
-    Please double check that you're following the right format and structure and the response is NOT empty. \
+Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
+Please double check that you're following the right format and structure and the response is NOT empty. \
 
-    <|eot_id|><|start_header_id|>user<|end_header_id|>\
-    {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+<|eot_id|><|start_header_id|>user<|end_header_id|>\
+{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
             input_variables=["query"],
     )
 

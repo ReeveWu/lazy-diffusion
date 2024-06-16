@@ -19,7 +19,7 @@ i = 0
 for index, row in df.iterrows():
     if len(row['prompt']) < 15:
         continue
-    if i >= 50000:
+    if i >= 100000:
         break
     page_content = row['prompt']
     metadata = {
