@@ -9,4 +9,6 @@ faiss-cpu
 sentence-transformers
 line-bot-sdk
 Flask
+fastapi
 python-dotenv
+matplotlib
