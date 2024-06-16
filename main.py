@@ -14,13 +14,16 @@ from linebot.models import MessageAction, TemplateSendMessage, ConfirmTemplate
 
 from collections import defaultdict
 
-from utils.LLM import GenerateDescriptions, GenerateStyle, RetrievalWithPrompt, Conversation
+from utils.LLM import GenerateDescriptions, GenerateStyle, RetrievalWithPrompt, Conversation, StyleCommandDistinguisher, IsGenerationalRequest
 from utils.post_to_imgur import img_post
+from utils.gen_img import txt2img
 
 retriever = RetrievalWithPrompt(mode=1)
 description_advisor = GenerateDescriptions()
 style_advisor = GenerateStyle()
 agent = Conversation()
+style_distinguisher = StyleCommandDistinguisher()
+finisher = IsGenerationalRequest()
 
 load_dotenv()
 
@@ -30,7 +33,9 @@ CHANNEL_SECRET = os.getenv('CHANNEL_SECRET')
 def init_info():
     return {
         "state": -1,
-        "rag_suggestions": [],
+        "preview_style": "",
+        "rag": [],
+        "description_suggestion": [],
         "suggested_styles": [], 
         "base_prompt": "",
         "description": "",
@@ -48,6 +53,7 @@ history = defaultdict(init_info)
 # state 5: user has finished adding details based on the rag prompt
 # state 6: user has finished selecting styles and is ready to generate the image
 # state 7: user want to share the prompt or not
+# state 8: user want to preview the image or not
 # state -1: user has not started a round
 
 app = Flask(__name__)
@@ -148,7 +154,7 @@ def handle_message(event):
         if user_message == "Yes":
             docs = retriever.invoke(history[user_id]['base_prompt'])
             for doc in docs:
-                history[user_id]['rag_suggestions'].append(doc.page_content)
+                history[user_id]['rag'].append(doc.page_content)
             print("docs", docs)
             messages = [
                 TextMessage(text="Here are some prompts that might be helpful for you: "),
@@ -178,21 +184,32 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, messages)
             
         elif user_message == "No":
-            suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
-            print("suggestions", type(suggestions), suggestions)
+            try:
+                suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
+                if not isinstance(suggestions[0], str):
+                    suggestions = []
+            except:
+                try:
+                    suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
+                    if not isinstance(suggestions[0], str):
+                        suggestions = []
+                except:
+                    suggestions = []
+            history[user_id]['description_suggestion'] = suggestions
+            print("suggestions", type(suggestions), suggestions) 
             messages = [
                 TextMessage(text="Okay, let's continue to improve your prompt."),
                 TextMessage(text="Inorder to generate a more specific image, please provide more detailed description."),
-                TextMessage(text='Also according to your query, I have some suggestions for you, you can click the following tags to add them to your prompt.'),
+                TextMessage(text='Also according to your query, I have some suggestions for you, you can click the following tags to add them to your prompt.' if suggestions != [] else "Feel free to type more details about the image you want to generate."),
                 TemplateSendMessage(
                     alt_text='Suggestions',
                     template=CarouselTemplate(columns=[
                                 CarouselColumn(
-                                    text=suggestion,
+                                    text=suggestion[:117] + "..." if len(suggestion) > 120 else suggestion,
                                     actions=[
-                                        MessageAction(label='I want this!', text=suggestion)
+                                        MessageAction(label='I want this!', text=f"<DESCRIPTIONSAMPLE {i}>")
                                     ]
-                                ) for suggestion in suggestions
+                                ) for i, suggestion in enumerate(suggestions)
                             ])
                 ),
             ]
@@ -200,21 +217,32 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, messages)
     elif user_state == 2:
         if user_message == 'Continue':
-            suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
-            print("suggestions", type(suggestions), suggestions)
+            try:
+                suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
+                if not isinstance(suggestions[0], str):
+                    suggestions = []
+            except:
+                try:
+                    suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
+                    if not isinstance(suggestions[0], str):
+                        suggestions = []
+                except:
+                    suggestions = []
+            history[user_id]['description_suggestion'] = suggestions
+            print("suggestions", type(suggestions), suggestions) 
             messages = [
                 TextMessage(text="Okay, let's continue to improve your prompt."),
                 TextMessage(text="Inorder to generate a more specific image, please provide more detailed description."),
-                TextMessage(text='Also according to your query, I have some suggestions for you, you can click the following tags to add them to your prompt.'),
+                TextMessage(text='Also according to your query, I have some suggestions for you, you can click the following tags to add them to your prompt.' if suggestions != [] else "Feel free to type more details about the image you want to generate."),
                 TemplateSendMessage(
                     alt_text='Suggestions',
                     template=CarouselTemplate(columns=[
                                 CarouselColumn(
-                                    text=suggestion,
+                                    text=suggestion[:117] + "..." if len(suggestion) > 120 else suggestion,
                                     actions=[
-                                        MessageAction(label='I want this!', text=suggestion)
+                                        MessageAction(label='I want this!', text=f"<DESCRIPTIONSAMPLE {i}>")
                                     ]
-                                ) for suggestion in suggestions
+                                ) for i, suggestion in enumerate(suggestions)
                             ])
                 )
             ]
@@ -223,7 +251,7 @@ def handle_message(event):
         elif user_message[:len("<RAGPROMPT")] == "<RAGPROMPT":
             selected_id = int(user_message.split(" ")[1][:-1])
             messages = [
-                TextMessage(text=f"Great! You have selected the prompt: \n\"{history[user_id]['rag_suggestions'][selected_id]}\""),
+                TextMessage(text=f"Great! You have selected the prompt: \n\"{history[user_id]['rag'][selected_id]}\""),
                 TextSendMessage(
                     text='If you want to add more details to the prompt, please type them below. \nOtherwise, you can click the button below to go to the next step.',
                     quick_reply=QuickReply(
@@ -237,30 +265,119 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, messages)
             
     elif user_state == 3:
-        # TODO: add if statement to check if the user want to finish the process
-        history[user_id]['description'] = user_message
-        styles = style_advisor.invoke(history[user_id]['description'])['result']
-        history[user_id]['suggested_styles'] = styles
-        messages = [
-            TextMessage(text="Great! Now, let's select some styles for your image"),
-            TextMessage(text="You can select the styles below or type the style you want."),
-            TextSendMessage(
-            text='Here are some styles that might be helpful for you: ',
-            quick_reply=QuickReply(
-                items=[
-                    QuickReplyButton(
-                        action=MessageAction(label=style, text=style)
-                    ) for style in history[user_id]['suggested_styles']]
-            ))
-        ]
-        history[user_id]["state"] = 4
-        line_bot_api.reply_message(event.reply_token, messages)
+        if user_message[:len("<DESCRIPTIONSAMPLE")] == "<DESCRIPTIONSAMPLE":
+            history[user_id]['description'] = history[user_id]['description_suggestion'][int(user_message.split(" ")[1][:-1])]
+        else:
+            res = finisher.invoke(user_message)['result']
+            if res == 'yes':
+                messages = [
+                    TextMessage(text="Great! Let's generate the image!"),
+                    TemplateSendMessage(
+                        alt_text='Get started',
+                        template=ConfirmTemplate(
+                                text="Are you ready to generate the image? (It may take a while)",
+                                actions=[
+                                    MessageAction(
+                                        label='Yes!',
+                                        text='Yes!'
+                                    ),
+                                    MessageAction(
+                                        label="I'm ready!",
+                                        text="I'm ready!"
+                                    )
+                                ]
+                            )
+                    )
+                ]
+                history[user_id]["state"] = 6
+                line_bot_api.reply_message(event.reply_token, messages)
+            else:
+                history[user_id]['description'] = user_message
+        if res != 'yes':
+            styles = style_advisor.invoke(history[user_id]['description'])['result']
+            history[user_id]['suggested_styles'] = styles
+            messages = [
+                TextMessage(text="Great! Now, let's select some styles for your image"),
+                TextMessage(text="You can select the styles below or type the style you want."),
+                TextSendMessage(
+                text='Here are some styles that might be helpful for you: ',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=MessageAction(label=style, text=style)
+                        ) for style in history[user_id]['suggested_styles']]
+                ))
+            ]
+            history[user_id]["state"] = 4
+            line_bot_api.reply_message(event.reply_token, messages)
+        
     elif user_state == 4:
-        # TODO: add if statement to check if the user want to finish the process
-        if True:
-            history[user_id]["styles"].append(user_message)
-            if user_message in history[user_id]["suggested_styles"]:
-                history[user_id]["suggested_styles"].remove(user_message)
+        if user_message not in history[user_id]["suggested_styles"]:
+            res = style_distinguisher.invoke(user_message)
+            req_type = res['mode']
+            req_style = res['style']
+            print("req_type, req_style:", req_type, req_style)
+            if req_type == "add" and req_style != "":
+                history[user_id]["styles"].append(req_style)
+                messages = [
+                    TextMessage(text="Great! You have added the style: " + req_style),
+                    TextMessage(text="Now you can select more styles."),
+                    TextSendMessage(
+                    text='If you think you have selected enough styles, you can ask me to generate the image.',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label=style, text=style)
+                            ) for style in history[user_id]['suggested_styles']]
+                    ))
+                ]
+            elif req_type == "preview" and req_style != "":
+                history[user_id]["preview_style"] = req_style
+                messages = [
+                    TextMessage(text=f"I can see you want to preview the image of the style: {req_style}.\n Let's generate the image!"),
+                    TemplateSendMessage(
+                        alt_text='Preview it?',
+                        template=ConfirmTemplate(
+                                text="Preview it? (It may take a while)",
+                                actions=[
+                                    MessageAction(
+                                        label='Yes',
+                                        text='Yes'
+                                    ),
+                                    MessageAction(
+                                        label="No",
+                                        text="No"
+                                    )
+                                ]
+                            )
+                    )
+                ]
+                history[user_id]["state"] = 8
+            elif req_type == "final" or req_style == "":
+                messages = [
+                    TextMessage(text="Great! Let's generate the image!"),
+                    TemplateSendMessage(
+                        alt_text='Get started',
+                        template=ConfirmTemplate(
+                                text="Are you ready to generate the image? (It may take a while)",
+                                actions=[
+                                    MessageAction(
+                                        label='Yes!',
+                                        text='Yes!'
+                                    ),
+                                    MessageAction(
+                                        label="I'm ready!",
+                                        text="I'm ready!"
+                                    )
+                                ]
+                            )
+                    )
+                ]
+                history[user_id]["state"] = 6
+            line_bot_api.reply_message(event.reply_token, messages)
+        
+        else:
+            history[user_id]["suggested_styles"].remove(user_message)
             if history[user_id]['suggested_styles'] != []:
                 messages = [
                     TextMessage(text="Great! You can select more styles or type."),
@@ -275,23 +392,23 @@ def handle_message(event):
                 ]
             else:
                 messages = [
-                TextMessage(text="Great! I think your prompt is good enough, let's generate the image!"),
-                TemplateSendMessage(
-                    alt_text='Get started',
-                    template=ConfirmTemplate(
-                            text="Are you ready to generate the image? (It may take a while)",
-                            actions=[
-                                MessageAction(
-                                    label='Yes!',
-                                    text='Yes!'
-                                ),
-                                MessageAction(
-                                    label="I'm ready!",
-                                    text="I'm ready!"
-                                )
-                            ]
-                        )
-                )
+                    TextMessage(text="Great! I think your prompt is good enough, let's generate the image!"),
+                    TemplateSendMessage(
+                        alt_text='Get started',
+                        template=ConfirmTemplate(
+                                text="Are you ready to generate the image? (It may take a while)",
+                                actions=[
+                                    MessageAction(
+                                        label='Yes!',
+                                        text='Yes!'
+                                    ),
+                                    MessageAction(
+                                        label="I'm ready!",
+                                        text="I'm ready!"
+                                    )
+                                ]
+                            )
+                    )
                 ]
                 history[user_id]["state"] = 6
             line_bot_api.reply_message(event.reply_token, messages)
@@ -320,7 +437,7 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, messages)
     
     elif user_state == 6:
-        img = cv2.imread("./Start.png")
+        img, _ = txt2img("A beautiful sunset over the ocean.")
         url = img_post(img)
         messages = [
             TextMessage(text="Here is the image you requested:"),
@@ -350,9 +467,8 @@ def handle_message(event):
             messages = [
                 TextMessage(text="Great! Your prompt has been shared with the community!"),
                 TextMessage(text="Thank you for contributing!"),
-                TextMessage(text="If you have any other requests, feel free to start a new round!"),
                 TextSendMessage(
-                    text='If you think you have selected enough styles, you can ask me to generate the image.',
+                    text="If you have any other requests, feel free to start a new round!",
                     quick_reply=QuickReply(
                         items=[
                             QuickReplyButton(
@@ -374,6 +490,38 @@ def handle_message(event):
                     ))
             ]
         history[user_id] = init_info()
+        line_bot_api.reply_message(event.reply_token, messages)
+    
+    elif user_state == 8:
+        if user_message == "Yes":
+            img = cv2.imread("./Start.png")
+            url = img_post(img)
+            messages = [
+                TextMessage(text=f"Here is the image that you can preview the style: {history[user_id]['preview_style']}"),
+                ImageSendMessage(original_content_url=url, preview_image_url=url),
+                TextMessage(text="Now you can continue to select more styles or generate the image."),
+                TextSendMessage(
+                    text='If you think you have selected enough styles, you can ask me to generate the image.',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label=style, text=style)
+                            ) for style in history[user_id]['suggested_styles']]
+                    ))
+                ]
+        elif user_message == "No":
+            messages = [
+                TextMessage(text="Okay! Now you can continue to select more styles or generate the image."),
+                TextSendMessage(
+                    text='If you think you have selected enough styles, you can ask me to generate the image.',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label=style, text=style)
+                            ) for style in history[user_id]['suggested_styles']]
+                    ))
+            ]
+        history[user_id]["state"] = 4
         line_bot_api.reply_message(event.reply_token, messages)
 
     else:
