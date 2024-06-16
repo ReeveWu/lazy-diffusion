@@ -107,6 +107,27 @@ Your answer should be a JSON with a single key 'result' and a list of six differ
             input_variables=["query"],
         )
 
+
+class Conversation(LLM):
+    def __init__(self):
+        self.llm = Ollama(model="llama3")
+        self.chain = self.get_prompt() | self.llm | StrOutputParser()
+
+    def invoke(self, query):
+        return self.chain.invoke({"query": query})
+
+    @staticmethod
+    def get_prompt():
+        return PromptTemplate(
+            template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+You are an agent who can help users to use the tool that can optimize the prompts they use for generating images. Users can start using the service by typing "Get started" on the chatbox. Please chat with the users.
+Your response must be simple and clear. \
+Output within 10 words. \
+<|eot_id|><|start_header_id|>user<|end_header_id|>\
+{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+            input_variables=["query"],
+        )
+
 # create a comprehensive final prompt using previous results
 # class ultimate_refiner(LLM):
 #     def __init__(self):
