@@ -2,6 +2,7 @@ import requests
 import base64
 from io import BytesIO
 import time
+import numpy as np
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -90,12 +91,12 @@ def txt2img(prompt=demo_prompt, negative_prompt=demo_negative_prompt, styles = [
             duration = end_time - start_time
             print(f"Time: {end_time - start_time:.2f}s")
 
-            if not to_show: return image, duration
+            if not to_show: return np.array(image), duration
             # 使用 matplotlib 顯示圖像
-            plt.imshow(image)
-            plt.axis('off')  # 不顯示坐標軸
-            plt.show()
-            return image, duration
+            # plt.imshow(image)
+            # plt.axis('off')  # 不顯示坐標軸
+            # plt.show()
+            return np.array(image), duration
         else:
             print("No images returned.")
     else:
@@ -134,7 +135,8 @@ def generate_image(request: ImageRequest):
 
 if __name__ == "__main__":
     prompt = "A beautiful sunset over the ocean."
-    txt2img(prompt, to_show=True)
+    img, _ = txt2img(prompt, to_show=True)
+    print(type(img))
     # # 使用 uvicorn 作為 ASGI 伺服器來運行應用程序
     # uvicorn.run(app, host="127.0.0.1", port=8000)
     

@@ -12,6 +12,7 @@ IMGUR_CLIENT_ID = os.getenv('IMGUR_CLIENT_ID')
 def img_post(image):
     # 將numpy陣列轉換為圖片格式
     # image = cv2.imread('Avater.png')
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     _, img_encoded = cv2.imencode('.png', image)
 
     # 將圖片轉換為base64編碼的字串

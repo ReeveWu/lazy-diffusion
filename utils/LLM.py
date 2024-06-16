@@ -46,13 +46,8 @@ class IsGenerationalRequest(LLM):
     def get_prompt():
         return PromptTemplate(
             template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-You are an assistant who helps users generate images. \
-Your job is to determine whether the user's input is a request for you to start generating an image. \
-Users might not explicitly make this request, so here is a tip: if the user's response is not describing the requirements for an image (including composition, style, etc.), \
-and it's not part of a casual conversation, but instead has a tone of requesting action or indicates that they have finished explaining their requirements, \
-this usually means they likely want you to start generating the image.
-
-If it is, return 'yes'; otherwise, return 'no'.
+You are an assistant responsible for determining whether a user's input is a description of a scenario or an image. \
+If not, output 'no'; if it is, output 'yes'. \
 Output the answer as a JSON with a single key 'result' and no preamble or explanation. <|eot_id|><|start_header_id|>user<|end_header_id|>\
 {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
             input_variables=["query"],
@@ -65,43 +60,21 @@ class GenerateDescriptions(LLM):
         super().__init__(self.get_prompt())
 
     def invoke(self, query):
-        try:
-            response = super().invoke(query)
-            if len(response)==3:
-                return response
-            else:
-                self.invoke(query)
-        except:
-            self.invoke(query)
+        return super().invoke(query)
 
     @staticmethod
     def get_prompt():
         return PromptTemplate(
-#                 template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-# You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
-# Don't generate too long descriptions.\
-# Each description must within 10 tokens. \
-# Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
-# Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.\
-
-
-# Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
-# Please double check that you're following the right format, generating 3 scenes, and the response is NOT empty. \
-
-# <|eot_id|><|start_header_id|>user<|end_header_id|>\
-# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
                 template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
 You are an AI assistant specialized in refining scene descriptions for image generation purposes. \
 Your task is to transform a basic description provided by the user into three unique, vivid, and artistically enriched scene variations. \
-Each variation must be concise, detailed, and not exceed 10 tokens in length.
+Focus on infusing each description with creative elements that enhance visual appeal and artistic quality, ensuring they remain short and impactful. \
+Each variation must be concise, detailed, and not exceed 10 tokens in length. \
 
-Focus on infusing each description with creative elements that enhance visual appeal and artistic quality, ensuring they remain short and impactful.
-
-Your response should adhere to the following format: a JSON object with a single key 'result', containing a list of three scene descriptions.Separate by ",". And no preamble or explanation.\
-Each description should be a standalone, visually stimulating variation of the initial input. Verify that the format is correct, all three descriptions are included, and none of the descriptions are empty.
-
+Your response should adhere to the following format: a JSON object with a single key 'result', and the value should be a list containing three distinct scene descriptions, And no preamble or explanation.
+This is an example of the expected output: {{"result": ["<description1>", "<description2>", "<description3>"]}} \
 <|eot_id|><|start_header_id|>user<|end_header_id|>\
-{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+Description: {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
             input_variables=["query"]
     )
 
@@ -189,7 +162,7 @@ The 'style' key should contain the style name if applicable, and be an empty str
 
 
 #create a comprehensive final prompt using previous results
-class ultimate_refiner(LLM):
+class UltimateRefiner(LLM):
     def __init__(self):
         super().__init__(self.get_prompt())
 

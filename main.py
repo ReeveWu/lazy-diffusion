@@ -14,7 +14,15 @@ from linebot.models import MessageAction, TemplateSendMessage, ConfirmTemplate
 
 from collections import defaultdict
 
-from utils.LLM import GenerateDescriptions, GenerateStyle, RetrievalWithPrompt, Conversation, StyleCommandDistinguisher, IsGenerationalRequest
+from utils.LLM import (
+    GenerateDescriptions, 
+    GenerateStyle, 
+    RetrievalWithPrompt, 
+    Conversation, 
+    StyleCommandDistinguisher, 
+    IsGenerationalRequest,
+    UltimateRefiner
+)
 from utils.post_to_imgur import img_post
 from utils.gen_img import txt2img
 
@@ -24,6 +32,33 @@ style_advisor = GenerateStyle()
 agent = Conversation()
 style_distinguisher = StyleCommandDistinguisher()
 finisher = IsGenerationalRequest()
+ultimate_refiner = UltimateRefiner()
+
+# print("====================================")
+# print("All models are loaded.")
+# print("====================================")
+# print("Test the models: RetrievalWithPrompt")
+# print()
+# print(retriever.invoke("A beautiful sunset over the ocean."))
+# print("====================================")
+# print("Test the models: IsGenerationalRequest")
+# print()
+# print(finisher.invoke("A dog is playing with a toy"))
+# print("====================================")
+# print("Test the models: GenerateDescriptions")
+# print()
+# print(description_advisor.invoke("A dog is playing with a toy "))
+# print("====================================")
+# print("Test the models: GenerateStyle")
+# print()
+# print(style_advisor.invoke("A dog is playing with a toy"))
+# print("====================================")
+# print("Test the models: UltimateRefiner")
+# print()
+# print(ultimate_refiner.invoke("A dog is playing with a toy", ["abstract", "realism"], "A dog is playing with a toy in the park."))
+# print("====================================")
+
+
 
 load_dotenv()
 
@@ -218,16 +253,13 @@ def handle_message(event):
     elif user_state == 2:
         if user_message == 'Continue':
             try:
+                print("base_prompt", history[user_id]['base_prompt'])
                 suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
+                print("suggestions", suggestions)
                 if not isinstance(suggestions[0], str):
                     suggestions = []
             except:
-                try:
-                    suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
-                    if not isinstance(suggestions[0], str):
-                        suggestions = []
-                except:
-                    suggestions = []
+                suggestions = []
             history[user_id]['description_suggestion'] = suggestions
             print("suggestions", type(suggestions), suggestions) 
             messages = [
@@ -261,15 +293,32 @@ def handle_message(event):
                             )]
                     ))
             ]
+            history[user_id]['description'] = history[user_id]['rag'][selected_id]
             history[user_id]["state"] = 5
             line_bot_api.reply_message(event.reply_token, messages)
             
     elif user_state == 3:
         if user_message[:len("<DESCRIPTIONSAMPLE")] == "<DESCRIPTIONSAMPLE":
             history[user_id]['description'] = history[user_id]['description_suggestion'][int(user_message.split(" ")[1][:-1])]
+            styles = style_advisor.invoke(history[user_id]['description'])['result']
+            history[user_id]['suggested_styles'] = styles
+            messages = [
+                TextMessage(text="Great! Now, let's select some styles for your image"),
+                TextMessage(text="You can select the styles below or type the style you want."),
+                TextSendMessage(
+                text='Here are some styles that might be helpful for you: ',
+                quick_reply=QuickReply(
+                    items=[
+                        QuickReplyButton(
+                            action=MessageAction(label=style, text=style)
+                        ) for style in history[user_id]['suggested_styles']]
+                ))
+            ]
+            history[user_id]["state"] = 4
+            line_bot_api.reply_message(event.reply_token, messages)
         else:
             res = finisher.invoke(user_message)['result']
-            if res == 'yes':
+            if res == 'no':
                 messages = [
                     TextMessage(text="Great! Let's generate the image!"),
                     TemplateSendMessage(
@@ -293,23 +342,22 @@ def handle_message(event):
                 line_bot_api.reply_message(event.reply_token, messages)
             else:
                 history[user_id]['description'] = user_message
-        if res != 'yes':
-            styles = style_advisor.invoke(history[user_id]['description'])['result']
-            history[user_id]['suggested_styles'] = styles
-            messages = [
-                TextMessage(text="Great! Now, let's select some styles for your image"),
-                TextMessage(text="You can select the styles below or type the style you want."),
-                TextSendMessage(
-                text='Here are some styles that might be helpful for you: ',
-                quick_reply=QuickReply(
-                    items=[
-                        QuickReplyButton(
-                            action=MessageAction(label=style, text=style)
-                        ) for style in history[user_id]['suggested_styles']]
-                ))
-            ]
-            history[user_id]["state"] = 4
-            line_bot_api.reply_message(event.reply_token, messages)
+                styles = style_advisor.invoke(history[user_id]['description'])['result']
+                history[user_id]['suggested_styles'] = styles
+                messages = [
+                    TextMessage(text="Great! Now, let's select some styles for your image"),
+                    TextMessage(text="You can select the styles below or type the style you want."),
+                    TextSendMessage(
+                    text='Here are some styles that might be helpful for you: ',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label=style, text=style)
+                            ) for style in history[user_id]['suggested_styles']]
+                    ))
+                ]
+                history[user_id]["state"] = 4
+                line_bot_api.reply_message(event.reply_token, messages)
         
     elif user_state == 4:
         if user_message not in history[user_id]["suggested_styles"]:
@@ -378,6 +426,7 @@ def handle_message(event):
         
         else:
             history[user_id]["suggested_styles"].remove(user_message)
+            history[user_id]["styles"].append(user_message)
             if history[user_id]['suggested_styles'] != []:
                 messages = [
                     TextMessage(text="Great! You can select more styles or type."),
@@ -414,8 +463,13 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, messages)
     
     elif user_state == 5:
+        if user_message == 'start generating':
+            pass
+        else:
+            history[user_id]['description'] = user_message
+            
         messages = [
-                TextMessage(text="Great! I think your prompt is good enough, let's generate the image!"),
+                TextMessage(text="Great! Let's generate the image!"),
                 TemplateSendMessage(
                     alt_text='Get started',
                     template=ConfirmTemplate(
@@ -432,14 +486,18 @@ def handle_message(event):
                             ]
                         )
                 )
-                ]
+            ]
         history[user_id]["state"] = 6
         line_bot_api.reply_message(event.reply_token, messages)
     
     elif user_state == 6:
-        img, _ = txt2img("A beautiful sunset over the ocean.")
+        prompt = ultimate_refiner.invoke(history[user_id]['base_prompt'], history[user_id]['styles'], history[user_id]['description'])['result']
+        print("The final prompt is: ", prompt)
+        img, _ = txt2img(prompt)
+        print("The image is generated.")
         url = img_post(img)
         messages = [
+            TextMessage(text=f"Here is the prompt that I have refined: \"{prompt}\""),
             TextMessage(text="Here is the image you requested:"),
             ImageSendMessage(original_content_url=url, preview_image_url=url),
             TemplateSendMessage(
@@ -460,6 +518,7 @@ def handle_message(event):
                 )
             ]
         history[user_id]["state"] = 7
+        history[user_id]['past_prompts'].append(prompt)
         line_bot_api.reply_message(event.reply_token, messages)
     
     elif user_state == 7:
@@ -494,7 +553,8 @@ def handle_message(event):
     
     elif user_state == 8:
         if user_message == "Yes":
-            img = cv2.imread("./Start.png")
+            prompt = history[user_id]['base_prompt'] + ", " + history[user_id]['description'] + ", " + history[user_id]['preview_style']
+            img, _ = txt2img(prompt)
             url = img_post(img)
             messages = [
                 TextMessage(text=f"Here is the image that you can preview the style: {history[user_id]['preview_style']}"),
