@@ -77,7 +77,7 @@ Focus on adding creative elements and details that increase the vividness and ar
 Each description must within 10 words. \
 
 Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
-Please double check that you're following the right format and structure and the response is NOT empty. \
+Please double check that you're following the right format, generating 3 scenes, and the response is NOT empty. \
 
 <|eot_id|><|start_header_id|>user<|end_header_id|>\
 {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
