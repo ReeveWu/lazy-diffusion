@@ -466,7 +466,7 @@ def handle_message(event):
         if user_message == 'start generating':
             pass
         else:
-            history[user_id]['description'] = user_message
+            history[user_id]['description'] =  history[user_id]['description'] + ", " + user_message
             
         messages = [
                 TextMessage(text="Great! Let's generate the image!"),
