@@ -8,23 +8,28 @@ from pydantic import BaseModel
 import uvicorn
 import matplotlib.pyplot as plt
 from PIL import Image
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
+STABLE_DIFFUSION_API = os.getenv('STABLE_DIFFUSION_API')
+print(STABLE_DIFFUSION_API)
 
 def get_sampler():
-    url = "http://127.0.0.1:7860"
+    url = STABLE_DIFFUSION_API
     url += "/sdapi/v1/samplers"
     opt = requests.get(url)
     print(opt.json())
 
 def get_current_model():
-    url = "http://127.0.0.1:7860"
+    url = STABLE_DIFFUSION_API
     url += "/sdapi/v1/options"
     opt = requests.get(url)
     print(f'Model: {opt.json()["sd_model_checkpoint"]}')
 
 def change_model(model_name):
-    url = "http://127.0.0.1:7860"
+    url = STABLE_DIFFUSION_API
     url += "/sdapi/v1/options"
 
     data = {
@@ -46,7 +51,7 @@ def txt2img(prompt=demo_prompt, negative_prompt=demo_negative_prompt, styles = [
     get_current_model()
     
     # 定義 API URL
-    url = "http://127.0.0.1:7860"
+    url = STABLE_DIFFUSION_API
     url += "/sdapi/v1/txt2img"
 
     if not prompt.endswith("<lora:LCM_lora_sdxl:1>"):
