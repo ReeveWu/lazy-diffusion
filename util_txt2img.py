@@ -48,8 +48,8 @@ def txt2img(prompt=demo_prompt, negative_prompt=demo_negative_prompt, styles = [
     url = "http://127.0.0.1:7860"
     url += "/sdapi/v1/txt2img"
 
-    if not prompt.endswith("<lora:LCM_lora_sdxl:1>"):
-        prompt += "<lora:LCM_lora_sdxl:1>"
+    if not prompt.endswith(" <lora:lcm_lora_sdxl:1>"):
+        prompt += " <lora:lcm_lora_sdxl:1>"
 
     # 構造請求數據
     data = {
