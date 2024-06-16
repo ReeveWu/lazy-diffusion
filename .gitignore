@@ -1,3 +1,4 @@
+.safetensors
 
 **/dist
 client/node_modules
