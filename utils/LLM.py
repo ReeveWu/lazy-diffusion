@@ -27,7 +27,7 @@ class RetrievalWithPrompt:
             self.embeddings,
             allow_dangerous_deserialization=True,
         )
-        self.retriever = self.db.as_retriever()
+        self.retriever = self.db.as_retriever(search_type="similarity_score_threshold", search_kwargs={"score_threshold": 0.5, "k": 5})
 
     def invoke(self, prompt):
         docs = self.retriever.invoke(prompt)

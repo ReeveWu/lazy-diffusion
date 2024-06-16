@@ -28,7 +28,7 @@ CHANNEL_SECRET = os.getenv('CHANNEL_SECRET')
 def init_info():
     return {
         "state": None,
-        "see_suggestions": False,
+        "rag_suggestions": [],
         "suggested_styles": [],
         "base_prompt": "",
         "description": "",
@@ -43,7 +43,8 @@ history = defaultdict(init_info)
 # state 2: user wants to see prompt examples
 # state 3: user are adding more details to the prompt
 # state 4: user are selecting styles
-# state 5: user has finished selecting styles and is ready to generate the image
+# state 5: user has finished adding details based on the rag prompt
+# state 6: user has finished selecting styles and is ready to generate the image
 # state None: user has not started a round
 
 app = Flask(__name__)
@@ -140,6 +141,8 @@ def handle_message(event):
     elif user_state == 1:
         if user_message == "Yes":
             docs = retriever.invoke(history[user_id]['base_prompt'])
+            for doc in docs:
+                history[user_id]['rag_suggestions'].append(doc.page_content)
             print("docs", docs)
             messages = [
                 TextMessage(text="Here are some prompts that might be helpful for you: "),
@@ -147,13 +150,23 @@ def handle_message(event):
                     alt_text='Suggestions',
                     template=CarouselTemplate(columns=[
                                 CarouselColumn(
-                                    text=doc.page_content,
+                                    text=doc.page_content[:57] + "..." if len(doc.page_content) > 60 else doc.page_content,
+                                    thumbnail_image_url=doc.metadata['url'],
                                     actions=[
-                                        URIAction(label='I want this!', uri=doc.metadata['url'])
+                                        MessageAction(label='I want this!', text=f"<RAGPROMPT {i}>"),
+                                        URIAction(label='Show image', uri=doc.metadata['url']),
                                     ]
-                                ) for doc in docs
+                                ) for i, doc in enumerate(docs)
                             ])
-                )
+                ),
+                TextSendMessage(
+                    text='Or you can click the button below to continue.',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label="Continue", text="Continue")
+                            )]
+                    ))
             ]
             history[user_id]["state"] = 2
             line_bot_api.reply_message(event.reply_token, messages)
@@ -175,12 +188,48 @@ def handle_message(event):
                                     ]
                                 ) for suggestion in suggestions
                             ])
-                )
+                ),
             ]
             history[user_id]["state"] = 3
             line_bot_api.reply_message(event.reply_token, messages)
     elif user_state == 2:
-        pass
+        if user_message == 'Continue':
+            suggestions = description_advisor.invoke(history[user_id]['base_prompt'])['result']
+            print("suggestions", type(suggestions), suggestions)
+            messages = [
+                TextMessage(text="Okay, let's continue to improve your prompt."),
+                TextMessage(text="Inorder to generate a more specific image, please provide more detailed description."),
+                TextMessage(text='Also according to your query, I have some suggestions for you, you can click the following tags to add them to your prompt.'),
+                TemplateSendMessage(
+                    alt_text='Suggestions',
+                    template=CarouselTemplate(columns=[
+                                CarouselColumn(
+                                    text=suggestion,
+                                    actions=[
+                                        MessageAction(label='I want this!', text=suggestion)
+                                    ]
+                                ) for suggestion in suggestions
+                            ])
+                )
+            ]
+            history[user_id]["state"] = 3
+            line_bot_api.reply_message(event.reply_token, messages)
+        elif user_message[:len("<RAGPROMPT")] == "<RAGPROMPT":
+            selected_id = int(user_message.split(" ")[1][:-1])
+            messages = [
+                TextMessage(text=f"Great! You have selected the prompt: \n\"{history[user_id]['rag_suggestions'][selected_id]}\""),
+                TextSendMessage(
+                    text='If you want to add more details to the prompt, please type them below. \nOtherwise, you can click the button below to go to the next step.',
+                    quick_reply=QuickReply(
+                        items=[
+                            QuickReplyButton(
+                                action=MessageAction(label="Let's goooo!", text="start generating")
+                            )]
+                    ))
+            ]
+            history[user_id]["state"] = 5
+            line_bot_api.reply_message(event.reply_token, messages)
+            
     elif user_state == 3:
         history[user_id]['description'] = user_message
         styles = style_advisor.invoke(history[user_id]['description'])['result']
@@ -241,8 +290,34 @@ def handle_message(event):
                         )
                 )
                 ]
-                history[user_id]["state"] = 5
+                history[user_id]["state"] = 6
             line_bot_api.reply_message(event.reply_token, messages)
+    
+    elif user_state == 5:
+        messages = [
+                TextMessage(text="Great! I think your prompt is good enough, let's generate the image!"),
+                TemplateSendMessage(
+                    alt_text='Get start',
+                    template=ConfirmTemplate(
+                            text="Are you ready to generate the image? (It may take a while)",
+                            actions=[
+                                MessageAction(
+                                    label='Yes!',
+                                    text='Yes!'
+                                ),
+                                MessageAction(
+                                    label="I'm ready!",
+                                    text="I'm ready!"
+                                )
+                            ]
+                        )
+                )
+                ]
+        history[user_id]["state"] = 6
+        line_bot_api.reply_message(event.reply_token, messages)
+    
+    elif user_state == 6:
+        pass
     else:
         print("Invalid user state")
         
