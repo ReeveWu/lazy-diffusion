@@ -65,23 +65,44 @@ class GenerateDescriptions(LLM):
         super().__init__(self.get_prompt())
 
     def invoke(self, query):
-        return super().invoke(query)
+        try:
+            response = super().invoke(query)
+            if len(response)==3:
+                return response
+            else:
+                self.invoke(query)
+        except:
+            self.invoke(query)
 
     @staticmethod
     def get_prompt():
         return PromptTemplate(
-                template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
-Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
-Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.
-Each description must within 10 words. \
+#                 template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+# You are a specialized assistant tasked with enhancing user-provided scene descriptions for image generation. \
+# Don't generate too long descriptions.\
+# Each description must within 10 tokens. \
+# Your goal is to enrich these brief descriptions into three distinct, detailed, and visually appealing scene variations. \
+# Focus on adding creative elements and details that increase the vividness and artistic quality of each scene.\
 
-Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
-Please double check that you're following the right format, generating 3 scenes, and the response is NOT empty. \
+
+# Your answer should be a JSON with a single key 'result' and a list of three scene descriptions. and no preamble or explanation. \
+# Please double check that you're following the right format, generating 3 scenes, and the response is NOT empty. \
+
+# <|eot_id|><|start_header_id|>user<|end_header_id|>\
+# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+                template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+You are an AI assistant specialized in refining scene descriptions for image generation purposes. \
+Your task is to transform a basic description provided by the user into three unique, vivid, and artistically enriched scene variations. \
+Each variation must be concise, detailed, and not exceed 10 tokens in length.
+
+Focus on infusing each description with creative elements that enhance visual appeal and artistic quality, ensuring they remain short and impactful.
+
+Your response should adhere to the following format: a JSON object with a single key 'result', containing a list of three scene descriptions.Separate by ",". And no preamble or explanation.\
+Each description should be a standalone, visually stimulating variation of the initial input. Verify that the format is correct, all three descriptions are included, and none of the descriptions are empty.
 
 <|eot_id|><|start_header_id|>user<|end_header_id|>\
 {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
-            input_variables=["query"],
+            input_variables=["query"]
     )
 
 
@@ -167,24 +188,29 @@ The 'style' key should contain the style name if applicable, and be an empty str
     
 
 
-# create a comprehensive final prompt using previous results
-# class ultimate_refiner(LLM):
-#     def __init__(self):
-#         super().__init__(self.get_prompt())
+#create a comprehensive final prompt using previous results
+class ultimate_refiner(LLM):
+    def __init__(self):
+        super().__init__(self.get_prompt())
 
-#     def invoke(self, base_prompt, style, description):
-#         return super().invoke(query)
+    def invoke(self, base_prompt, style, description):
+        return self.chain.invoke({"base_prompt": base_prompt, "style": style, "description": description})
 
-#     @staticmethod
-#     def get_prompt():
-#         return PromptTemplate(
-#             template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
-# You are an artist whose job is to provide six different styles based on user sentences, \
-# capturing the context of the sentences to allow users to choose their preferred style. \
-# Your styles should be as diverse as possible, each represented by a single keyword.
+    @staticmethod
+    def get_prompt():
+        return PromptTemplate(
+            template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+You are an AI trained to merge three key inputs: \
+a 'base_prompt' describing the core idea, a 'style' indicating the artistic or stylistic approach, \
+and a 'description' providing additional details. \
+Your task is to blend these inputs into a coherent, aesthetically appealing prompt suitable for generating images with Stable Diffusion.
+Your responses should consist of a single, well-integrated prompt without any preamble or explanation.
+user
 
-# Your answer should be a JSON with a single key 'result' and a list of six different styles without any description. and no preamble or explanation. \
-# <|eot_id|><|start_header_id|>user<|end_header_id|>\
-# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
-#             input_variables=["query"],
-#         )
+your response should be less than 30 words.
+Your answer should be a JSON with a single key 'result' and a your response and no preamble or explanation. \
+<|eot_id|><|start_header_id|>user<|end_header_id|>\
+Base Prompt: {base_prompt}, Style: {style}, Description: {description}
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+            input_variables=["base_prompt", "style", "description"],
+        )
