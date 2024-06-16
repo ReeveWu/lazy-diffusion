@@ -41,4 +41,4 @@ embeddings = EmbeddingModel()
 db = FAISS.from_documents(documents, embeddings)
 print(db.index.ntotal)
 
-db.save_local("./data/prompt_index")
+db.save_local("./utils/prompt_index")
