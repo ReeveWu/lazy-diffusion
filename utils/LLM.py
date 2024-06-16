@@ -107,6 +107,52 @@ Your answer should be a JSON with a single key 'result' and a list of six differ
             input_variables=["query"],
         )
 
+# The model is used to distinguish whether the user's input is a request to add a style or preview a style or generate the final image
+class StyleCommandDistinguisher(LLM):
+    '''
+    output styles:
+    generate final image: "final"
+    preview a style: "style"
+    add a style: "<style_name>"
+    '''
+    def __init__(self):
+        super().__init__(self.get_prompt())
+
+    def invoke(self, query):
+        return super().invoke(query)
+
+    @staticmethod
+    def get_prompt():
+        return PromptTemplate(
+#             template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+# You are a specialized assistant designed to interpret user inputs regarding image processing tasks. \
+# Your task is to accurately determine whether the user's input is a request to add a style to an image, preview a style on an image, or generate the final styled image. \
+# Based on the user's command, you should categorize the input into one of these three specific actions.
+
+
+# Your response should be formatted as a JSON object with a two key 'mode' and 'style'. \
+# The value of 'mode' should accurately reflect the user's intent based on their input and follow the specified format: "add", "preview", or "final". \
+# The value of 'style' should be the name of the style if the user's input is a request to add a style or preview a style, if the user choose final, the value should be "" \
+# <|eot_id|><|start_header_id|>user<|end_header_id|>\
+# {query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+            template="""<|begin_of_text|><|start_header_id|>system<|end_header_id|> \
+You are a specialized assistant tasked with interpreting user inputs related to image styling tasks. \
+Determine if the input is a request to add a style to an image, preview a style, or generate the final styled image. \
+Classify the input into one of these actions: 'add', 'preview', or 'final'.
+
+If the action is 'add' or 'preview', extract the style name from the input. If the action is 'final', the style name should be an empty string.
+
+Your response should be structured as a JSON object with two keys: 'mode' and 'style'. \
+Answer it without any description and no preamble or explanation.\
+The 'mode' key should reflect the user's intent, being either 'add', 'preview', or 'final'. \
+The 'style' key should contain the style name if applicable, and be an empty string if the mode is 'final'.
+<|eot_id|><|start_header_id|>user<|end_header_id|>\
+{query}<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+            input_variables=["query"],
+        )
+    
+
+
 # create a comprehensive final prompt using previous results
 # class ultimate_refiner(LLM):
 #     def __init__(self):
