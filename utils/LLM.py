@@ -150,7 +150,9 @@ class StyleCommandDistinguisher(LLM):
 You are a specialized assistant tasked with interpreting user inputs related to image styling tasks. \
 Determine if the input is a request to add a style to an image, preview a style, or generate the final styled image. \
 Classify the input into one of these actions: 'add', 'preview', or 'final'.
+If the user is wondering what the style will look like, the action should be 'preview'.
 The defualt action is 'add', if the user's input imply wanting to end the styling process, the action should be 'final'.
+If the user want a preview, sample or example of the style, the action should be 'preview'.
 
 If the action is 'add' or 'preview', extract the style name from the input. If the action is 'final', the style name should be an empty string.
 
