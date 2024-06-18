@@ -2,6 +2,13 @@
 
 # System workflow
 
+![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/rag.png)
+![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/select_rag.png)
+![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/gen_desc.png)
+![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/gen_style.png)
+![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/distinguisher.png)
+![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/final.png)
+
 # prerequisite
 
 Before installing and starting this project, make sure you have the following modules:
