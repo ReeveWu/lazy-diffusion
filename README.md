@@ -92,7 +92,7 @@ Here are two ways to use this project:
 - Integrate with LINE Bot
 - Run in the Terminal (Coming soon)
 
-## Integrate with Line bot
+## Integrate with LINE Bot
 
 To run this project on a LINE Bot, you need to first create a **Message API** product on the [LINE Developer page](https://developers.line.biz) and save its `CHANNEL ACCESS TOKEN` and `CHANNEL SECRET`.
 
