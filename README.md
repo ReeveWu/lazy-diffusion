@@ -7,12 +7,12 @@ The project addresses the common challenge many users face: the difficulty of wr
 
 # Table of Contents
 
-1. [Overview](#prompt-stable-diffusion)
+1. [Overview](#overview)
 2. [Key Features](#key-features)
-2. [Table of Contents](#table-of-contents)
-2. [System workflow](#system-workflow)
-3. [Prerequisite](#prerequisite)
-3. [Installation](#installation)
+3. [Table of Contents](#table-of-contents)
+4. [System Workflow](#system-workflow)
+5. [Prerequisite](#prerequisite)
+6. [Installation](#installation)
 7. [Demo](#demo)
 8. [Main Techniques](#main-techniques)
 9. [License](#license)
@@ -185,3 +185,10 @@ Then you will see a webhook server created by Flask running on port 5000.
 # License
 
 # Contact Info
+## Vincent Li
+Github repo: [https://github.com/VincentLi1216](https://github.com/VincentLi1216)  
+Email: [sunnus.tw@gmail.com](sunnus.tw@gmail.com)
+
+## Reeve Wu
+Github repo: [https://github.com/ReeveWu](https://github.com/ReeveWu)  
+Email: [reeve0319@gmail.com](reeve0319@gmail.com)
