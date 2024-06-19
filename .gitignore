@@ -9,12 +9,11 @@ server/.venv
 
 **/cat_diff
 # *.png
-*.jpg
 # ssh key
 id_rsa
 id_rsa.pub
 .ssh/
-
+vincent_test.ipynb
 models
 
 # mac
