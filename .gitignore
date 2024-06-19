@@ -13,7 +13,8 @@ server/.venv
 id_rsa
 id_rsa.pub
 .ssh/
-
+vincent_test.ipynb
+vincent_note.md
 models
 
 # mac

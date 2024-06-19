@@ -1,4 +1,26 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Prompt Stable Diffusion
+Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiative is designed to assist users in creating effective image generation prompts. Leveraging advanced Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) techniques, our system guides users step-by-step in crafting high-quality prompts. By integrating with Linebot, we aim to enhance the overall user experience, making the process seamless and user-friendly.
+
+The project addresses the common challenge many users face: the difficulty of writing effective prompts for image generation. With "Prompt Tuning Stable Diffusion," users can receive tailored guidance and suggestions, improving their ability to generate desired images. Our approach combines state-of-the-art AI technology with an intuitive interface, ensuring that both novice and experienced users can benefit from our solution.
+
+# Key Features
+
+# Table of Contents
+
+1. [Overview](#overview)
+2. [Key Features](#key-features)
+3. [Table of Contents](#table-of-contents)
+4. [System Workflow](#system-workflow)
+5. [Prerequisite](#prerequisite)
+6. [Installation](#installation)
+7. [Demo](#demo)
+8. [Main Techniques](#main-techniques)
+9. [License](#license)
+10. [Contact Info](#contact-info)
+
+
 
 # System workflow
 
@@ -9,7 +31,7 @@
 ![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/distinguisher.jpg)
 ![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/final.jpg)
 
-# prerequisite
+# Prerequisite
 
 Before installing and starting this project, make sure you have the following modules:
 
@@ -157,3 +179,19 @@ python main.py
 ```
 
 Then you will see a webhook server created by Flask running on port 5000.
+
+# Demo
+
+# Main Techniques
+
+# License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+# Contact Info
+## Vincent Li
+Github repo: [https://github.com/VincentLi1216](https://github.com/VincentLi1216)  
+Email: [sunnus.tw@gmail.com](sunnus.tw@gmail.com)
+
+## Reeve Wu
+Github repo: [https://github.com/ReeveWu](https://github.com/ReeveWu)  
+Email: [reeve0319@gmail.com](reeve0319@gmail.com)
