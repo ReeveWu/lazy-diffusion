@@ -1,4 +1,7 @@
 # Prompt Stable Diffusion
+Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiative is designed to assist users in creating effective image generation prompts. Leveraging advanced Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) techniques, our system guides users step-by-step in crafting high-quality prompts. By integrating with Linebot, we aim to enhance the overall user experience, making the process seamless and user-friendly.
+
+The project addresses the common challenge many users face: the difficulty of writing effective prompts for image generation. With "Prompt Tuning Stable Diffusion," users can receive tailored guidance and suggestions, improving their ability to generate desired images. Our approach combines state-of-the-art AI technology with an intuitive interface, ensuring that both novice and experienced users can benefit from our solution.
 
 # System workflow
 
