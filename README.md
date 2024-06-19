@@ -44,7 +44,7 @@ Before installing and starting this project, make sure you have the following mo
 
 This project uses Ollama to initialize `llama3:8b` as the large language model. To install Ollama, visit [Ollama Download Page](https://ollama.com/download).
 
-## Stable_Diffusion
+## Stable Diffusion
 
 To be able to run a self-hosted Stable Diffusion model, you need to clone another project into the same parent directory as this project.
 
