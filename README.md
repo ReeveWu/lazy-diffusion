@@ -3,6 +3,21 @@ Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiat
 
 The project addresses the common challenge many users face: the difficulty of writing effective prompts for image generation. With "Prompt Tuning Stable Diffusion," users can receive tailored guidance and suggestions, improving their ability to generate desired images. Our approach combines state-of-the-art AI technology with an intuitive interface, ensuring that both novice and experienced users can benefit from our solution.
 
+# Table of Contents
+
+1. [Overview](#prompt-stable-diffusion)
+2. [Table of Contents](#table-of-contents)
+3. [Key Features](#key-features)
+4. [Installation (Pre-requirements)](#installation-pre-requirements)
+5. [Usage](#usage)
+6. [System Flow](#system-flow)
+7. [Demo](#demo)
+8. [Main Techniques](#main-techniques)
+9. [License](#license)
+10. [Contact Info](#contact-info)
+
+
+
 # System workflow
 
 ![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/rag.jpg)
