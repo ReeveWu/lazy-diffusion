@@ -3,14 +3,16 @@ Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiat
 
 The project addresses the common challenge many users face: the difficulty of writing effective prompts for image generation. With "Prompt Tuning Stable Diffusion," users can receive tailored guidance and suggestions, improving their ability to generate desired images. Our approach combines state-of-the-art AI technology with an intuitive interface, ensuring that both novice and experienced users can benefit from our solution.
 
+# Key Features
+
 # Table of Contents
 
 1. [Overview](#prompt-stable-diffusion)
+2. [Key Features](#key-features)
 2. [Table of Contents](#table-of-contents)
-3. [Key Features](#key-features)
-4. [Installation (Pre-requirements)](#installation-pre-requirements)
-5. [Usage](#usage)
-6. [System Flow](#system-flow)
+2. [System workflow](#system-workflow)
+3. [Prerequisite](#prerequisite)
+3. [Installation](#installation)
 7. [Demo](#demo)
 8. [Main Techniques](#main-techniques)
 9. [License](#license)
@@ -27,7 +29,7 @@ The project addresses the common challenge many users face: the difficulty of wr
 ![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/distinguisher.jpg)
 ![Image text](https://raw.githubusercontent.com/ReeveWu/articulate-ai/main/image/final.jpg)
 
-# prerequisite
+# Prerequisite
 
 Before installing and starting this project, make sure you have the following modules:
 
@@ -175,3 +177,11 @@ python main.py
 ```
 
 Then you will see a webhook server created by Flask running on port 5000.
+
+# Demo
+
+# Main Techniques
+
+# License
+
+# Contact Info
