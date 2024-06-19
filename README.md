@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Prompt Stable Diffusion
 Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiative is designed to assist users in creating effective image generation prompts. Leveraging advanced Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) techniques, our system guides users step-by-step in crafting high-quality prompts. By integrating with Linebot, we aim to enhance the overall user experience, making the process seamless and user-friendly.
 
@@ -183,6 +185,7 @@ Then you will see a webhook server created by Flask running on port 5000.
 # Main Techniques
 
 # License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 # Contact Info
 ## Vincent Li
