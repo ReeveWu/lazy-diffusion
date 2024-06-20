@@ -6,6 +6,7 @@ Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiat
 The project addresses the common challenge many users face: the difficulty of writing effective prompts for image generation. With "Prompt Tuning Stable Diffusion," users can receive tailored guidance and suggestions, improving their ability to generate desired images. Our approach combines state-of-the-art AI technology with an intuitive interface, ensuring that both novice and experienced users can benefit from our solution.
 
 # Key Features
+![image](./image/key_features.png)
 
 # Table of Contents
 
@@ -44,7 +45,7 @@ Before installing and starting this project, make sure you have the following mo
 
 This project uses Ollama to initialize `llama3:8b` as the large language model. To install Ollama, visit [Ollama Download Page](https://ollama.com/download).
 
-## Stable_Diffusion
+## Stable Diffusion
 
 To be able to run a self-hosted Stable Diffusion model, you need to clone another project into the same parent directory as this project.
 
@@ -181,6 +182,10 @@ python main.py
 Then you will see a webhook server created by Flask running on port 5000.
 
 # Demo
+![image](image/demo1.png)
+![image](image/demo2.png)
+![image](image/demo3.png)
+
 
 # Main Techniques
 
