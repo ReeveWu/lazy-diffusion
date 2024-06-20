@@ -188,6 +188,7 @@ Then you will see a webhook server created by Flask running on port 5000.
 ![image](image/demo1.png)
 ![image](image/demo2.png)
 ![image](image/demo3.png)
+![image](image/thank_you.png)
 
 # Main Techniques
 
