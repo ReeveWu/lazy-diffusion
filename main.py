@@ -65,6 +65,11 @@ load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.getenv('CHANNEL_ACCESS_TOKEN')
 CHANNEL_SECRET = os.getenv('CHANNEL_SECRET')
 
+print("====================================")
+print("CHANNEL_ACCESS_TOKEN: ", CHANNEL_ACCESS_TOKEN)
+print("CHANNEL_SECRET: ", CHANNEL_SECRET)
+print("====================================")
+
 def init_info():
     return {
         "state": -1,
@@ -535,6 +540,8 @@ def handle_message(event):
                             )]
                     ))
             ]
+            history[user_id] = init_info()
+            line_bot_api.reply_message(event.reply_token, messages)
             
         elif user_message == "Next time":
             messages = [
@@ -548,8 +555,8 @@ def handle_message(event):
                             )]
                     ))
             ]
-        history[user_id] = init_info()
-        line_bot_api.reply_message(event.reply_token, messages)
+            history[user_id] = init_info()
+            line_bot_api.reply_message(event.reply_token, messages)
     
     elif user_state == 8:
         if user_message == "Yes":

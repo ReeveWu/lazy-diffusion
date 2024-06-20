@@ -1,11 +1,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Prompt Stable Diffusion
+
 Welcome to the "Prompt Tuning Stable Diffusion" project! This innovative initiative is designed to assist users in creating effective image generation prompts. Leveraging advanced Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) techniques, our system guides users step-by-step in crafting high-quality prompts. By integrating with Linebot, we aim to enhance the overall user experience, making the process seamless and user-friendly.
 
 The project addresses the common challenge many users face: the difficulty of writing effective prompts for image generation. With "Prompt Tuning Stable Diffusion," users can receive tailored guidance and suggestions, improving their ability to generate desired images. Our approach combines state-of-the-art AI technology with an intuitive interface, ensuring that both novice and experienced users can benefit from our solution.
 
 # Key Features
+
 ![image](./image/key_features.png)
 
 # Table of Contents
@@ -20,8 +22,6 @@ The project addresses the common challenge many users face: the difficulty of wr
 8. [Main Techniques](#main-techniques)
 9. [License](#license)
 10. [Contact Info](#contact-info)
-
-
 
 # System workflow
 
@@ -128,6 +128,8 @@ Here are two ways to use this project:
 
 To run this project on a LINE Bot, you need to first create a **Message API** product on the [LINE Developer page](https://developers.line.biz) and save its `CHANNEL ACCESS TOKEN` and `CHANNEL SECRET`.
 
+> NOTE: Make sure you enabled the `Use webhook` option in **Message API** block.
+
 ### Creating Environment Variables
 
 Create a `.env` file in the root directory of the project and write the following environment variables:
@@ -182,21 +184,25 @@ python main.py
 Then you will see a webhook server created by Flask running on port 5000.
 
 # Demo
+
 ![image](image/demo1.png)
 ![image](image/demo2.png)
 ![image](image/demo3.png)
 
-
 # Main Techniques
 
 # License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
 # Contact Info
+
 ## Vincent Li
+
 Github repo: [https://github.com/VincentLi1216](https://github.com/VincentLi1216)  
 Email: [sunnus.tw@gmail.com](sunnus.tw@gmail.com)
 
 ## Reeve Wu
+
 Github repo: [https://github.com/ReeveWu](https://github.com/ReeveWu)  
 Email: [reeve0319@gmail.com](reeve0319@gmail.com)
