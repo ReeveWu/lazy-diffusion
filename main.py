@@ -26,7 +26,7 @@ from utils.LLM import (
 from utils.post_to_imgur import img_post
 from utils.gen_img import txt2img
 
-retriever = RetrievalWithPrompt(mode=1)
+retriever = RetrievalWithPrompt(mode=2)
 description_advisor = GenerateDescriptions()
 style_advisor = GenerateStyle()
 agent = Conversation()
